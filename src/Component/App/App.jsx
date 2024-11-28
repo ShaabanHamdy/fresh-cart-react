@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { RouterProvider, createBrowserRouter, createHashRouter } from "react-router-dom";
 import MasterLayout from "../MasterLayout/MasterLayout";
 import Home from "../Home/Home";
@@ -9,15 +9,10 @@ import Login from "../Login/Login";
 import Register from "../Register/Register";
 import ProductDetails from "../productDetails/ProductDetails";
 import PaymentOnline from "../PaymentOnline/PaymentOnline";
-import { BounceLoader } from "react-spinners";
+
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(false);
-  }, []);
-
+ 
   
   const routes = createHashRouter([
     {
@@ -38,13 +33,9 @@ const App = () => {
 
   return (
     <>
-      {loading ? (
-        <div className=" d-flex justify-content-center align-items-center  min-vh-100">
-          <BounceLoader color="#36d7b7" />
-        </div>
-      ) : (
+      
         <RouterProvider router={routes} />
-      )}
+  
     </>
   );
 };
