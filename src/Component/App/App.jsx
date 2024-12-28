@@ -11,9 +11,6 @@ import Register from "../Register/Register";
 import ProductDetails from "../productDetails/ProductDetails";
 
 const App = () => {
- 
-
-  
   const routes = createHashRouter([
     {
       path: "/",
@@ -33,9 +30,7 @@ const App = () => {
 
   return (
     <>
-   
-        <RouterProvider router={routes} />
-     
+      <RouterProvider router={routes} />
     </>
   );
 };
