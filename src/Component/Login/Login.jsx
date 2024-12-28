@@ -1,23 +1,26 @@
 import axios from "axios";
 import { useFormik } from "formik";
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { ContainerContext } from "../Context/Context";
 
 const Login = () => {
-  let { setUserToken, baseUrl } = useContext(ContainerContext);
+  let { baseUrl, setUserToken } = useContext(ContainerContext);
+
   let [error, setError] = useState("");
   let [loading, setLoading] = useState(false);
-
   let navigate = useNavigate();
+  // ================================================================
   const handleOnSubmit = async (values) => {
     const { data } = await axios
       .post(`${baseUrl}/user/login`, values)
       .catch((err) => {
-        return setLoading(false), setError(err?.response?.data.Error);
+        setLoading(false);
+        setError(err?.response?.data.Error);
+        return;
       });
-    if (data?.message == "success") {
+    if (data?.message === "success") {
       localStorage.setItem("token", data.token);
       setUserToken(data.token);
       navigate("/");
@@ -27,11 +30,14 @@ const Login = () => {
   let validationSchema = Yup.object({
     email: Yup.string().email().required("email is required"),
     password: Yup.string()
+      // .matches(
+      //   /^[A-Z][a-z0-9]{5,20}$/,
+      //   "Password should start With capital letter and more than 6 letters"
+      // )
       .matches(
-        /^[A-Z][a-z0-9]{5,10}$/,
-        "Password should start With capital letter and more than 6 letters"
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and be at least 8 characters long."
       )
-      .max(10, "max password is 10 character")
       .required("password is required"),
   });
 
@@ -43,12 +49,15 @@ const Login = () => {
     validationSchema,
     onSubmit: handleOnSubmit,
   });
+  // =========================================================================
   const showError = (parameter) => {
-    let lastResult = error == parameter;
+    let lastResult = error === parameter;
     if (lastResult) {
       return <div className=" alert alert-danger p-1 mt-2">{error}</div>;
     }
   };
+
+
   return (
     <>
       <div className=" formControl  m-auto w-75 p-5">
@@ -99,13 +108,12 @@ const Login = () => {
             )}
           </div>
           <div>
-            <a
-            className=" text-primary"
-              href="https://shaaban-hamdy-fresh-cart.netlify.app/#/Register"
-              target="_blank"
+            <Link
+              to={"https://shaaban-hamdy-fresh-cart.netlify.app/#/Register"}
+              className=" text-primary"
             >
               Go to Register
-            </a>
+            </Link>
           </div>
           <div className=" d-flex justify-content-end">
             {loading ? (

@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { ContainerContext } from "../Context/Context";
-import { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { BounceLoader } from "react-spinners";
-import axios from "axios";
+import { ContainerContext } from "../Context/Context";
 
 const Cart = () => {
   let {
     decrementCarts,
-    calcCount,
-    baseUrl,
     setCalcCount,
     getAllCarts,
     addToCart,
@@ -22,17 +18,20 @@ const Cart = () => {
 
   // =======================================================
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCats = async () => {
     let response = await getAllCarts();
-    setCart(response?.data);    
-    setCalcCount(response?.data?.calcQuantity)
+    setCart(response?.data);
+    setCalcCount(response?.data?.calcQuantity);
     setLoading(false);
   };
   // =======================================================
   const updateCountProduct = async (productId, quantity) => {
     let response = await addToCart(productId, quantity);
-    let product = cart?.data[0]?.filter((product)=> product.productId._id == productId).map((e)=> e.productId.stock) 
-    if (response == `invalid product quantity max available is ${product}`) {
+    let product = cart?.data[0]
+      ?.filter((product) => product.productId._id === productId)
+      .map((e) => e.productId.stock);
+    if (response === `invalid product quantity max available is ${product}`) {
       setErrorQntMas(response);
       setGetId(productId);
     } else {
@@ -41,14 +40,13 @@ const Cart = () => {
   };
   // ===========================================================================================
   const removeItem = async (productId) => {
-   await removeProduct(productId);
-  
+    await removeProduct(productId);
   };
 
   const decrementCart = async (productId, quantity) => {
     let response = await decrementCarts(productId, quantity);
     setErrorQntMas("");
-    if (response == "can't decrement less than 1") {
+    if (response === "can't decrement less than 1") {
       setErrorQntMas("can't decrement less than 1");
       setGetId(productId);
     }
@@ -56,7 +54,7 @@ const Cart = () => {
   // =======================================================
   useEffect(() => {
     getCats();
-  }, [calcCount, removeItem]);
+  },[getCats]);
 
   return (
     <>
@@ -72,7 +70,12 @@ const Cart = () => {
             Cart Items : {cart?.results}
           </h6>
           <h6 className="text-main fw-bolder ">
-            Total Cart Price : {cart?.data[0]?.reduce((x,y)=> x + y?.productId?.price * y?.quantity, 0)}  EGP
+            Total Cart Price :{" "}
+            {cart?.data[0]?.reduce(
+              (x, y) => x + y?.productId?.price * y?.quantity,
+              0
+            )}{" "}
+            EGP
           </h6>
           {cart?.data[0]?.map((product) => (
             <div
@@ -124,7 +127,7 @@ const Cart = () => {
                   Remove
                 </button>
               </div>
-              {product?.productId?._id == getId ? (
+              {product?.productId?._id === getId ? (
                 <p className=" text-danger d-flex justify-content-end">
                   {" "}
                   {errorQntMas}{" "}

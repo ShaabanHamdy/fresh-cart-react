@@ -9,21 +9,19 @@ const Register = () => {
   const { baseUrl } = useContext(ContainerContext);
   let [error, setError] = useState(null);
   let [loading, setLoading] = useState(false);
-
   let navigate = useNavigate();
+
   const handleOnSubmit = async (values) => {
     setLoading(true);
     const { data } = await axios
       .post(`${baseUrl}/user/signup`, values)
       .catch((err) => {
-        return (
-          setLoading(false),
-          setError(err?.response?.data?.Error),
-          console.log(err?.response?.data?.Error)
-        );
+        setLoading(false);
+        setError(err?.response?.data?.Error);
+        return;
       });
 
-    if (data?.message == "success") {
+    if (data?.message === "success") {
       navigate("/login");
     }
   };
@@ -42,10 +40,9 @@ const Register = () => {
       .required("phone is required"),
     password: Yup.string()
       .matches(
-        /^[A-Z][a-z0-9]{5,10}$/,
-        "Password should start With capital letter and more than 6 letters"
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, one number, and be at least 8 characters long."
       )
-      .max(10, "max password is 10 character")
       .required("password is required"),
   });
 
@@ -59,8 +56,9 @@ const Register = () => {
     validationSchema,
     onSubmit: handleOnSubmit,
   });
+  // ========================================================
   const showBackErrors = (parameter) => {
-    let resultError = error == parameter;
+    let resultError = error === parameter;
     if (resultError) {
       return <div className=" alert alert-danger p-1 mt-1">{error}</div>;
     }

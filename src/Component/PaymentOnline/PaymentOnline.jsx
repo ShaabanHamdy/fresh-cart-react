@@ -1,25 +1,23 @@
 import { useFormik } from "formik";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
+import * as Yup from "yup";
 import { ContainerContext } from "../Context/Context";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
 const PaymentOnline = () => {
-  const { userToken, baseUrl } = useContext(ContainerContext);
-  let navigate = useNavigate();
+  let [errorValidation, setErrorValidation] = useState("");
+  const { handelSubmitPayment } = useContext(ContainerContext);
+
+  const phoneRegExp =
+    /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+  let validationSchema = Yup.object({
+    address: Yup.string().required("address is required"),
+    phone: Yup.string()
+      .matches(phoneRegExp, "Phone number is not valid")
+      .required("phone is required"),
+  });
+
   const handelSubmit = async (values) => {
-    return await axios
-      .post(`${baseUrl}/order/createOrder`, values, {
-        headers: {
-          auth: userToken,
-        },
-      })
-      .then((response) => {
-        if (response?.data.message) {
-          return (window.location.href = response?.data?.url);
-        }
-      })
-      .catch((err) => console.log(err?.response?.data.Error));
+    let data = await handelSubmitPayment(values);
+    setErrorValidation(data);
   };
 
   let formik = useFormik({
@@ -28,6 +26,7 @@ const PaymentOnline = () => {
       phone: "",
       note: "",
     },
+    validationSchema,
     onSubmit: handelSubmit,
   });
 
@@ -48,7 +47,21 @@ const PaymentOnline = () => {
                   name="address"
                   id="address"
                 />
-
+                {errorValidation.includes("address") ? (
+                  <div className="alert alert-danger p-1 mt-1  ">
+                    Address is required
+                  </div>
+                ) : (
+                  ""
+                )}
+                {formik.errors.address && formik.touched.address ? (
+                  <div className="alert alert-danger p-1 mt-1" role="alert">
+                    {" "}
+                    {formik.errors.address}{" "}
+                  </div>
+                ) : (
+                  ""
+                )}
                 <label htmlFor="phone">Phone :</label>
                 <input
                   value={formik.values.phone}
@@ -59,7 +72,21 @@ const PaymentOnline = () => {
                   name="phone"
                   id="phone"
                 />
-
+                {errorValidation.includes("phone") ? (
+                  <div className="alert alert-danger text-danger rounded-1 p-2  ">
+                    phone is required
+                  </div>
+                ) : (
+                  ""
+                )}
+                {formik.errors.phone && formik.touched.phone ? (
+                  <div className="alert alert-danger p-1 mt-1" role="alert">
+                    {" "}
+                    {formik.errors.phone}{" "}
+                  </div>
+                ) : (
+                  ""
+                )}
                 <label htmlFor="note">Note :</label>
                 <textarea
                   placeholder="if you have notes"

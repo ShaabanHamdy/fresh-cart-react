@@ -1,13 +1,11 @@
-import axios from "axios";
-import React, { useState } from "react";
-import Slider from "react-slick";
+/* eslint-disable jsx-a11y/img-redundant-alt */
+import React, { useContext } from "react";
 import { useQuery } from "react-query";
+import Slider from "react-slick";
+import { ContainerContext } from "../Context/Context";
 
 const CategorySlider = () => {
-  // let {quantitySlider , setQuantitySlider} = useState(7)
-  const getCategorySlider = () => {
-    return axios.get("https://ecommerce.routemisr.com/api/v1/categories");
-  };
+  let { getCategorySlider } = useContext(ContainerContext);
 
   let { data } = useQuery("CategorySlider", getCategorySlider);
   let products = data?.data?.data;
@@ -30,41 +28,40 @@ const CategorySlider = () => {
     slidesToShow: 2,
     slidesToScroll: 1,
   };
-  console.log();
+
   return (
     <>
-  {  window.innerWidth > 500 ? 
-    <Slider {...settings}>
-        {products?.map((product) => (
-          <div key={product._id} className="py-3">
-            <img
-              style={{
-                height: "300px",
-              }}
-              className="CategorySlider  w-100 p-2"
-              src={product.image}
-              alt="product.image"
-            />
-          </div>
-        ))}
-      </Slider> 
-      : 
-      <Slider {...settings2}>
-        {products?.map((product) => (
-          <div key={product._id} className="py-3">
-            <img
-              style={{
-                height: "300px",
-              }}
-              className="CategorySlider  w-100 p-2"
-              src={product.image}
-              alt="product.image"
-            />
-          </div>
-        ))}
-      </Slider>  
-}
-      
+      {window.innerWidth > 500 ? (
+        <Slider {...settings}>
+          {products?.map((product) => (
+            <div key={product._id} className="py-3">
+              <img
+                style={{
+                  height: "300px",
+                }}
+                className="CategorySlider  w-100 p-2"
+                src={product.image}
+                alt="product.image"
+              />
+            </div>
+          ))}
+        </Slider>
+      ) : (
+        <Slider {...settings2}>
+          {products?.map((product) => (
+            <div key={product._id} className="py-3">
+              <img
+                style={{
+                  height: "300px",
+                }}
+                className="CategorySlider  w-100 p-2"
+                src={product.image}
+                alt="product.image"
+              />
+            </div>
+          ))}
+        </Slider>
+      )}
     </>
   );
 };

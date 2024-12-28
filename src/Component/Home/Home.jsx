@@ -1,13 +1,12 @@
 import React from "react";
-import FeaturedProducts from "../Products/FeaturedProducts";
 import CategorySlider from "../CategorySlider/CategorySlider";
 import MainSlide from "../mainSlide/MainSlide";
+import FeaturedProducts from "../Products/FeaturedProducts";
 
 const Home = () => {
-  
   return (
     <>
-    <MainSlide/>
+      <MainSlide />
       <CategorySlider />
       <FeaturedProducts />
     </>

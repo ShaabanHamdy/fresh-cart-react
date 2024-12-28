@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from "react";
 import { Offline, Online } from "react-detect-offline";
 import { Outlet } from "react-router-dom";
 import { ContainerContext } from "../Context/Context";
-import Footer from "../Footer/Footer";
 import Navbar from "../Navbar/Navbar";
 import OfflineComponent from "../OfflineComponent/OfflineComponent";
 
@@ -27,7 +26,6 @@ const MasterLayout = () => {
           <OfflineComponent />
         </Offline>
       </div>
-      <Footer />
     </>
   );
 };

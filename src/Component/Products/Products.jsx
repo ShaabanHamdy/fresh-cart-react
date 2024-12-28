@@ -1,35 +1,20 @@
 import React, { useContext, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useQuery } from "react-query";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { BounceLoader } from "react-spinners";
-import Swal from "sweetalert2";
+import {
+  sweetAlertError,
+  sweetAlertErrorQuantity,
+} from "../sweetAlert/sweetAlert";
 import { ContainerContext } from "./../Context/Context";
 
 const Products = () => {
-  
-  let { baseUrl, addToCart, getFeaturesProducts } =
-    useContext(ContainerContext);
-  const [quantity, setQuantity] = useState(1);
+  let { addToCart, getFeaturesProducts } = useContext(ContainerContext);
+  const [quantity] = useState(1);
 
   let { data, isLoading } = useQuery("featuresProducts", getFeaturesProducts);
-let navigate = useNavigate()
-  const sweetAlertError = (tokenMsg) => {
-    Swal.fire({
-      icon: "error",
-      title: "Oops...",
-      text: tokenMsg,
-      // footer: `<a href="/https://shaaban-hamdy-fresh-cart.netlify.app/#/Login" target="_blank" >Go to Login</a>`,
-      footer: navigate("/Login")
-    });
-  };
-  const sweetAlertErrorQuantity = (tokenMsg) => {
-    Swal.fire({
-      icon: "error",
-      title: "Oops...",
-      text: tokenMsg,
-    });
-  };
+
   const addProductToCart = async (id) => {
     let response = await addToCart(id, quantity);
     if (response?.data?.message === "Product added successfully to your cart") {
@@ -37,9 +22,9 @@ let navigate = useNavigate()
         <span className="small">Product added successfully to your cart</span>
       );
     }
-    let product = data?.data?.data.filter((product) => product._id == id);
+    let product = data?.data?.data.filter((product) => product._id === id);
     let stock = product?.map((s) => s.stock);
-    if (response == "You are not logged in. Please login to get access") {
+    if (response === "You are not logged in. Please login to get access") {
       sweetAlertError("You are not logged in. Please login to get access");
     }
     if (response === "token invalid please go to login again") {

@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import ReactImageMagnify from "react-image-magnify";
-import { useNavigate, useParams } from "react-router-dom";
-import Swal from "sweetalert2";
+import { useParams } from "react-router-dom";
 import { ContainerContext } from "../Context/Context";
+import {sweetAlertError} from "../sweetAlert/sweetAlert";
 
 const ProductDetails = () => {
-  let { baseUrl, addToCart, getSpecificProduct } = useContext(ContainerContext);
+  let { addToCart, getSpecificProduct } = useContext(ContainerContext);
 
   let [data, setData] = useState({});
   let [getQntValue, setGetQntValue] = useState(1);
@@ -14,33 +14,33 @@ const ProductDetails = () => {
   let [coverImage, setCoverImage] = useState("");
   let [errorQntMas, setErrorQntMas] = useState("");
   let { id } = useParams();
-  let navigate = useNavigate();
-  // ==============================================use Query to get data==================
+
+  // =====================================================================use Query to get data===========================
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const SpecificProduct = async () => {
     let { data } = await getSpecificProduct(id);
     setData(data?.product);
     setStock(data?.product.stock);
     setCoverImage(data?.product?.mainImage);
   };
-  // ====================================================================
+  // ======================================================================================================
 
   useEffect(() => {
     SpecificProduct();
-  }, []);
+  }, [SpecificProduct]);
 
-  // ====================================================================
+  // ======================================================================================================
+  // sweetAlertError(tokenMsg)
+  // const sweetAlertError = (tokenMsg) => {
+  //   Swal.fire({
+  //     icon: "error",
+  //     title: "Oops...",
+  //     text: tokenMsg,
+  //     footer: navigate("/Login"),
+  //   });
+  // };
 
-  const sweetAlertError = (tokenMsg) => {
-    Swal.fire({
-      icon: "error",
-      title: "Oops...",
-      text: tokenMsg,
-      // footer: `<a href="/https://shaaban-hamdy-fresh-cart.netlify.app/#/Login" target="_blank" >Go to Login</a>`,
-      footer: navigate("/Login"),
-    });
-  };
-
-  // ====================================================================
+  // ======================================================================================================
   const addProductToCart = async (id) => {
     let count = parseInt(getQntValue);
     let response = await addToCart(id, count);
@@ -51,15 +51,15 @@ const ProductDetails = () => {
       );
       setErrorQntMas("");
     }
-    if (response == "You are not logged in. Please login to get access") {
+    if (response === "You are not logged in. Please login to get access") {
       sweetAlertError("You are not logged in. Please login to get access");
     }
-    if (response == `invalid product quantity max available is ${stock}`) {
+    if (response === `invalid product quantity max available is ${stock}`) {
       setErrorQntMas(response);
     }
   };
 
-  // ====================================================================
+  // ======================================================================================================
   return (
     <>
       <div className="container">
@@ -91,7 +91,6 @@ const ProductDetails = () => {
                   },
                 }}
               />
-              {console.log(coverImage)}
             </div>
           </div>
           <div className="col-md-7  ">
