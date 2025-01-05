@@ -23,8 +23,8 @@ export default function ContainerContextProvider(props) {
   // ================================================================
 
   const addToCart = async (productId, quantity) => {
-    try {
-      const response = await axios.post(
+    await axios
+      .post(
         `${baseUrl}/cart/addProductToCart`,
         {
           productId,
@@ -35,18 +35,19 @@ export default function ContainerContextProvider(props) {
             auth: userToken,
           },
         }
-      );
-      setCalcCount(response?.data?.calcQuantity);
-      return response;
-    } catch (err) {
-      return err?.response?.data.Error;
-    }
+      )
+      .then((response) => {
+        return setCalcCount(response?.data?.calcQuantity);
+      })
+      .catch((err) => {
+        return err?.response?.data.Error;
+      });
   };
 
   // ================================================================
   const decrementCarts = async (productId, quantity) => {
-    try {
-      const response = await axios.post(
+    await axios
+      .post(
         `${baseUrl}/cart/decrementCarts`,
         {
           productId,
@@ -57,12 +58,14 @@ export default function ContainerContextProvider(props) {
             auth: userToken,
           },
         }
-      );
-      setCalcCount(response?.data?.calcQuantity);
-      return response;
-    } catch (err) {
-      return err?.response?.data.Error;
-    }
+      )
+      .then((response) => {
+        setCalcCount(response?.data?.calcQuantity);
+        return response;
+      })
+      .catch((err) => {
+        return err?.response?.data.Error;
+      });
   };
 
   // =================================================================================
@@ -83,8 +86,8 @@ export default function ContainerContextProvider(props) {
 
   // =================================================================================
   const removeProduct = async (productId) => {
-    try {
-      const response = await axios.put(
+    await axios
+      .put(
         `${baseUrl}/cart/removeOneCart`,
         {
           productId,
@@ -94,12 +97,13 @@ export default function ContainerContextProvider(props) {
             auth: localStorage.getItem("token"),
           },
         }
-      );
-
-      return response;
-    } catch (err) {
-      return err;
-    }
+      )
+      .then((response) => {
+        return response;
+      })
+      .catch((err) => {
+        return err;
+      });
   };
 
   // =================================================================================

@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ContainerContext } from "../Context/Context";
 import freshCart from "../images/freshCartLogo.svg";
-import style from "./navbar.module.css";
 const Navbar = () => {
   let { calcCount, setCalcCount, userToken, setUserToken } =
     useContext(ContainerContext);
@@ -56,7 +55,7 @@ const Navbar = () => {
               <div className=" cursor-pointer">
                 <Link to={"/Cart"}>
                   <i className="fas fa-cart-shopping text-main  fs-2 d-flex justify-content-center align-items-center h-100"></i>
-                  <span className={`${style.spanSmall} spanSmall badge`}>
+                  <span className={`spanSmall badge`}>
                     {calcCount}
                   </span>
                 </Link>
