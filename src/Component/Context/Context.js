@@ -1,43 +1,77 @@
 import axios from "axios";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useReducer } from "react";
 export const ContainerContext = createContext();
 
+// Initial state
+const initialState = {
+  userToken: null,
+  baseUrl: "https://freshcard-ecommerce-node.onrender.com",
+  calcCount: 0,
+  error: null,
+  loading: false,
+  cart: null,
+  errorQntMas: "",
+  getId: 0,
+  data: {},
+  getQntValue: 1,
+  stock: "",
+  coverImage: "",
+  quantity: 1,
+};
+
+// Reducer function
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "SET_STATE":
+      return { ...state, [action.field]: action.value };
+    case "SET_MULTIPLE_STATES":
+      return { ...state, ...action.payload };
+    default:
+      return state;
+  }
+};
+
 export default function ContainerContextProvider(props) {
-  // ========================================== userToken ========
-  let [userToken, setUserToken] = useState(null);
-  let [baseUrl] = useState("https://freshcard-ecommerce-node.onrender.com");
-  let [calcCount, setCalcCount] = useState(0);
+  const [state, dispatch] = useReducer(reducer, initialState);
+
   // ================================================================
 
   useEffect(() => {
-    if (localStorage.getItem("token") === null) return setCalcCount(0);
+    if (localStorage.getItem("token") === null) {
+      dispatch({ type: "SET_STATE", field: "calcCount", value: 0 });
+    }
   }, []);
   // ================================================================
 
   const getSpecificProduct = async (id) => {
     return await axios
-      .get(`${baseUrl}/product/getOneProduct/${id}`)
+      .get(`${state.baseUrl}/product/getOneProduct/${id}`)
       .then((res) => res)
       .catch((err) => err);
   };
   // ================================================================
 
   const addToCart = async (productId, quantity) => {
-    await axios
+    return await axios
       .post(
-        `${baseUrl}/cart/addProductToCart`,
+        `${state.baseUrl}/cart/addProductToCart`,
         {
           productId,
           quantity,
         },
         {
           headers: {
-            auth: userToken,
+            auth: state.userToken,
           },
         }
       )
       .then((response) => {
-        return setCalcCount(response?.data?.calcQuantity);
+        dispatch({
+          type: "SET_STATE",
+          field: "calcCount",
+          value: response?.data?.calcQuantity,
+        });
+        return response;
       })
       .catch((err) => {
         return err?.response?.data.Error;
@@ -46,21 +80,26 @@ export default function ContainerContextProvider(props) {
 
   // ================================================================
   const decrementCarts = async (productId, quantity) => {
-    await axios
+    return await axios
       .post(
-        `${baseUrl}/cart/decrementCarts`,
+        `${state.baseUrl}/cart/decrementCarts`,
         {
           productId,
           quantity,
         },
+
         {
           headers: {
-            auth: userToken,
+            auth: state.userToken,
           },
         }
       )
       .then((response) => {
-        setCalcCount(response?.data?.calcQuantity);
+        dispatch({
+          type: "SET_STATE",
+          field: "calcCount",
+          value: response?.data?.calcQuantity,
+        });
         return response;
       })
       .catch((err) => {
@@ -70,31 +109,29 @@ export default function ContainerContextProvider(props) {
 
   // =================================================================================
   const getAllCarts = async () => {
-    let response = await axios
-      .get(`${baseUrl}/cart/getAllCarts`, {
+    return await axios
+      .get(`${state.baseUrl}/cart/getAllCarts`, {
         headers: {
-          auth: localStorage.getItem("token"),
+          auth: state.userToken,
         },
       })
       .then((response) => {
         return response;
       })
       .catch((err) => err?.response?.data?.Error);
-
-    return response;
   };
 
   // =================================================================================
   const removeProduct = async (productId) => {
-    await axios
+    return await axios
       .put(
-        `${baseUrl}/cart/removeOneCart`,
+        `${state.baseUrl}/cart/removeOneCart`,
         {
           productId,
         },
         {
           headers: {
-            auth: localStorage.getItem("token"),
+            auth: state.userToken,
           },
         }
       )
@@ -109,33 +146,40 @@ export default function ContainerContextProvider(props) {
   // =================================================================================
 
   async function getFeaturesProducts() {
-    if (localStorage.getItem("token")) {
-      let response = await axios.get(`${baseUrl}/product/getAllProductsUsers`, {
-        headers: {
-          auth: localStorage.getItem("token"),
-        },
+    if (state.userToken) {
+      let response = await axios.get(
+        `${state.baseUrl}/product/getAllProductsUsers`,
+        {
+          headers: {
+            auth: state.userToken,
+          },
+        }
+      );
+      dispatch({
+        type: "SET_STATE",
+        field: "calcCount",
+        value: response?.data?.calcQuantity,
       });
-      setCalcCount(response?.data?.calcQuantity);
       return response;
     } else {
-      let response = await axios.get(`${baseUrl}/product/getAllProducts`);
-      setCalcCount(0);
+      let response = await axios.get(`${state.baseUrl}/product/getAllProducts`);
+      dispatch({ type: "SET_STATE", field: "calcCount", value: 0 });
       return response;
     }
   }
 
   // ====================================================================
 
-  const getCategorySlider = () => {
-    return axios.get("https://ecommerce.routemisr.com/api/v1/categories");
+  const getCategorySlider = async () => {
+    return await axios.get("https://ecommerce.routemisr.com/api/v1/categories");
   };
 
   // ====================================================================
   const handelSubmitPayment = async (values) => {
     return await axios
-      .post(`${baseUrl}/order/createOrder`, values, {
+      .post(`${state.baseUrl}/order/createOrder`, values, {
         headers: {
-          auth: userToken,
+          auth: state.userToken,
         },
       })
       .then((response) => {
@@ -153,17 +197,14 @@ export default function ContainerContextProvider(props) {
       value={{
         handelSubmitPayment,
         getCategorySlider,
-        userToken,
-        setUserToken,
         addToCart,
         getAllCarts,
         removeProduct,
-        setCalcCount,
         getSpecificProduct,
-        calcCount,
-        baseUrl,
         getFeaturesProducts,
         decrementCarts,
+        state,
+        dispatch,
       }}
     >
       {props.children}

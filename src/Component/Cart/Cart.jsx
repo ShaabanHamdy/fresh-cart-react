@@ -1,19 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { BounceLoader } from "react-spinners";
+import { ContainerContext } from "../Context/Context";
 import Apis from "./ApisCart";
 
 const Cart = () => {
-  const {
-    decrementCart,
-    removeItem,
-    updateCountProduct,
-    getCats,
-    loading,
-    errorQntMas,
-    getId,
-    cart,
-  } = Apis();
+  let { state } = useContext(ContainerContext);
+  const { decrementCart, removeItem, updateCountProduct, getCats } = Apis();
   // =======================================================
   useEffect(() => {
     getCats();
@@ -21,26 +14,26 @@ const Cart = () => {
 
   return (
     <>
-      {loading && (
+      {state.loading && (
         <div className=" min-vh-100  d-flex justify-content-center align-items-center">
           <BounceLoader color="#36d7b7" />
         </div>
       )}
-      {cart?.results > 0 ? (
+      {state.cart?.results > 0 ? (
         <div className="my-3   p-3 bg-main-light">
           <h3>Shop Cart :</h3>
           <h6 className="text-main fw-bolder  d-flex justify-content-end  ">
-            Cart Items : {cart?.results}
+            Cart Items : {state.cart?.results}
           </h6>
           <h6 className="text-main fw-bolder ">
             Total Cart Price :{" "}
-            {cart?.data[0]?.reduce(
+            {state.cart?.data[0]?.reduce(
               (x, y) => x + y?.productId?.price * y?.quantity,
               0
             )}{" "}
             EGP
           </h6>
-          {cart?.data[0]?.map((product) => (
+          {state.cart?.data[0]?.map((product) => (
             <div
               key={product.productId._id}
               className="row border-bottom py-3 "
@@ -90,10 +83,10 @@ const Cart = () => {
                   Remove
                 </button>
               </div>
-              {product?.productId?._id === getId ? (
+              {product?.productId?._id === state.getId ? (
                 <p className=" text-danger d-flex justify-content-end">
                   {" "}
-                  {errorQntMas}{" "}
+                  {state.errorQntMas}{" "}
                 </p>
               ) : (
                 ""
@@ -112,7 +105,7 @@ const Cart = () => {
       ) : (
         <div
           className={
-            loading
+            state.loading
               ? `rounded-5 d-none bg-danger my-5 h1 fw-bolder  text-center text-white p-5`
               : `rounded-5  bg-danger my-5 h1 fw-bolder  text-center text-white p-3`
           }

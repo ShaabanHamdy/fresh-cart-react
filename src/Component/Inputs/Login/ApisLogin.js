@@ -1,28 +1,32 @@
 import axios from "axios";
 import { useFormik } from "formik";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import { ContainerContext } from "../Context/Context";
+import { ContainerContext } from "../../Context/Context";
 
 const ApisLogin = () => {
-  let { baseUrl, setUserToken } = useContext(ContainerContext);
-  let [error, setError] = useState("");
-  let [loading, setLoading] = useState(false);
+  let { state, dispatch } =
+    useContext(ContainerContext);
   let navigate = useNavigate();
   // ================================================================
   const handleOnSubmit = async (values) => {
-    setLoading(true);
+    
+    dispatch({ type: "SET_STATE", field: "loading", value: true });
     const { data } = await axios
-      .post(`${baseUrl}/user/login`, values)
+      .post(`${state.baseUrl}/user/login`, values)
       .catch((err) => {
-        setLoading(false);
-        setError(err?.response?.data.Error);
+        dispatch({
+          type: "SET_MULTIPLE_STATES",
+          payload: { loading: false, error: err?.response?.data?.Error },
+        });
+        // setLoading(false);
+        // setError(err?.response?.data.Error);
         return;
       });
     if (data?.message === "success") {
       localStorage.setItem("token", data.token);
-      setUserToken(data.token);
+      dispatch({type:"SET_STATE",field:"userToken",value:data.token});
       navigate("/");
     }
   };
@@ -46,17 +50,9 @@ const ApisLogin = () => {
     onSubmit: handleOnSubmit,
   });
   // =========================================================================
-  const showError = (parameter) => {
-    let lastResult = error === parameter;
-    if (lastResult) {
-      return <div className=" alert alert-danger p-1 mt-2">{error}</div>;
-    }
-  };
+  
   return {
-    showError,
     formik,
-    loading,
-    error,
   };
 };
 

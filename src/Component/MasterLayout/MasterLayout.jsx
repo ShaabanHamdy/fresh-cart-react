@@ -6,12 +6,16 @@ import Navbar from "../Navbar/Navbar";
 import OfflineComponent from "../OfflineComponent/OfflineComponent";
 
 const MasterLayout = () => {
-  let { setUserToken } = useContext(ContainerContext);
+  let {  dispatch } = useContext(ContainerContext);
   useEffect(() => {
     if (localStorage.getItem("token") !== null) {
-      setUserToken(localStorage.getItem("token"));
+      dispatch({
+        type: "SET_STATE",
+        field: "userToken",
+        value: localStorage.getItem("token"),
+      });
     }
-  });
+  }, [dispatch]);
 
   return (
     <>

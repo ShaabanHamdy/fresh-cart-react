@@ -1,32 +1,42 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { ContainerContext } from "../Context/Context";
 
 const Apis = () => {
-  const [cart, setCart] = useState(null);
-  const [loading, setLoading] = useState(true);
-  let [errorQntMas, setErrorQntMas] = useState("");
-  let [getId, setGetId] = useState(0);
-
-  let { decrementCarts, setCalcCount, getAllCarts, addToCart, removeProduct } =
-    useContext(ContainerContext);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  let {
+    state,
+    dispatch,
+    decrementCarts,
+    getAllCarts,
+    addToCart,
+    removeProduct,
+  } = useContext(ContainerContext);
   const getCats = async () => {
     let response = await getAllCarts();
-    setCart(response?.data);
-    setCalcCount(response?.data?.calcQuantity);
-    setLoading(false);
+    dispatch({
+      type: "SET_MULTIPLE_STATES",
+      payload: {
+        calcCount: response?.data?.calcQuantity,
+        loading: false,
+        cart: response?.data,
+      },
+    });
   };
   // =======================================================
   const updateCountProduct = async (productId, quantity) => {
     let response = await addToCart(productId, quantity);
-    let product = cart?.data[0]
+    let product = state.cart?.data[0]
       ?.filter((product) => product.productId._id === productId)
       .map((e) => e.productId.stock);
     if (response === `invalid product quantity max available is ${product}`) {
-      setErrorQntMas(response);
-      setGetId(productId);
+      dispatch({
+        type: "SET_MULTIPLE_STATES",
+        payload: {
+          errorQntMas: response,
+          getId: productId,
+        },
+      });
     } else {
-      setErrorQntMas("");
+      dispatch({ type: "SET_STATE", field: "errorQntMas", value: "" });
     }
   };
   // ===========================================================================================
@@ -36,10 +46,16 @@ const Apis = () => {
 
   const decrementCart = async (productId, quantity) => {
     let response = await decrementCarts(productId, quantity);
-    setErrorQntMas("");
+    dispatch({ type: "SET_STATE", field: "errorQntMas", value: "" });
+
     if (response === "can't decrement less than 1") {
-      setErrorQntMas("can't decrement less than 1");
-      setGetId(productId);
+      dispatch({
+        type: "SET_MULTIPLE_STATES",
+        payload: {
+          errorQntMas: "can't decrement less than 1",
+          getId: productId,
+        },
+      });
     }
   };
 
@@ -48,10 +64,6 @@ const Apis = () => {
     removeItem,
     updateCountProduct,
     getCats,
-    loading,
-    errorQntMas,
-    getId,
-    cart,
   };
 };
 export default Apis;

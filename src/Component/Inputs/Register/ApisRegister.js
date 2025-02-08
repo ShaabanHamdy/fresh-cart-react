@@ -1,28 +1,32 @@
 import axios from "axios";
 import { useFormik } from "formik";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import { ContainerContext } from "../Context/Context";
+import { ContainerContext } from "../../Context/Context";
 
 const ApisRegister = () => {
-  const { baseUrl } = useContext(ContainerContext);
-  let [error, setError] = useState(null);
-  let [loading, setLoading] = useState(false);
+  const { state, dispatch } = useContext(ContainerContext);
   let navigate = useNavigate();
 
   const handleOnSubmit = async (values) => {
-    setLoading(true);
+    dispatch({ type: "SET_STATE", field: "loading", value: true });
     const { data } = await axios
-      .post(`${baseUrl}/user/signup`, values)
+      .post(`${state.baseUrl}/user/signup`, values)
       .catch((err) => {
-        setLoading(false);
-        setError(err?.response?.data?.Error);
-        return;
+        dispatch({
+          type: "SET_MULTIPLE_STATES",
+          payload: { loading: false, error: err?.response?.data?.Error },
+        });
       });
-
-    if (data?.message === "success") {
+      
+      if (data?.message === "success") {
+      dispatch({
+        type: "SET_MULTIPLE_STATES",
+        payload: { loading: false, error: null },
+      });
       navigate("/login");
+      return;
     }
   };
 
@@ -56,18 +60,17 @@ const ApisRegister = () => {
     validationSchema,
     onSubmit: handleOnSubmit,
   });
+
   // ========================================================
   const showBackErrors = (parameter) => {
-    let resultError = error === parameter;
+    let resultError = state.error === parameter;
     if (resultError) {
-      return <div className=" alert alert-danger p-1 mt-1">{error}</div>;
+      return <div className=" alert alert-danger p-1 mt-1">{state.error}</div>;
     }
   };
   return {
     formik,
     showBackErrors,
-    loading,
-    error,
   };
 };
 

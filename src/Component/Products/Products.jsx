@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
@@ -10,13 +10,12 @@ import {
 import { ContainerContext } from "./../Context/Context";
 
 const Products = () => {
-  let { addToCart, getFeaturesProducts } = useContext(ContainerContext);
-  const [quantity] = useState(1);
+  let { state, addToCart, getFeaturesProducts } = useContext(ContainerContext);
 
   let { data, isLoading } = useQuery("featuresProducts", getFeaturesProducts);
 
   const addProductToCart = async (id) => {
-    let response = await addToCart(id, quantity);
+    let response = await addToCart(id, state.quantity);
     if (response?.data?.message === "Product added successfully to your cart") {
       toast.success(
         <span className="small">Product added successfully to your cart</span>
